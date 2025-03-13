@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=employees'
+      - 'POSTGRES_PASSWORD=123456'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - "35432:5432"
+    volumes:
+      - ./postgres/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  postgres-init:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM postgres:latest
+        ADD https://raw.githubusercontent.com/neondatabase/postgres-sample-dbs/main/employees.sql.gz .
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: no
+    entrypoint: [ "pg_restore", "-d", "postgres://postgres:123456@postgres/employees", "-Fc", "employees.sql.gz", "-c", "-v", "--no-owner", "--no-privileges" ]
+
+volumes:
+  postgres-data:
+    driver: local

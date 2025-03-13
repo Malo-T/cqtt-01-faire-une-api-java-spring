@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: cqtt
+  datasource:
+    url: jdbc:postgresql://localhost:35432/employees
+    username: postgres
+    password: 123456
+server:
+  port: 8080
