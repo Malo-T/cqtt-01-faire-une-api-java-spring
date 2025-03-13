@@ -1,6 +1,10 @@
 spring:
   application:
     name: cqtt
+  docker:
+    compose:
+      file: docker-compose.yaml
+      lifecycle-management: start_only
   datasource:
     url: jdbc:postgresql://localhost:35432/employees
     username: postgres
